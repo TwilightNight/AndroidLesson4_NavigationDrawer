@@ -21,7 +21,7 @@ import butterknife.OnClick;
  */
 public class TimerFragment extends Fragment {
     private static final String TIMER_FRAGMENT_PREF = "TIMER_FRAGMENT_PREF";
-    private static final String TIMER_FRAGMENT_PREF_SAVE_TIME = "TIMER_FRAGMENT_PREF_SAVE_TIME";
+    private static final String TIMER_FRAGMENT_PREF_TIME = "TIMER_FRAGMENT_PREF_TIME";
     private static final String TIMER_FRAGMENT_PREF_IS_RUNNING = "TIMER_FRAGMENT_PREF_IS_RUNNING";
     private long timeWhenStopped = 0;
     @BindString(R.string.start)
@@ -38,11 +38,11 @@ public class TimerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_timer, container, false);
         ButterKnife.bind(this, view);
-        restoreData();
+        updateTimer();
         return view;
     }
 
-    private void restoreData() {
+    private void updateTimer() {
         if (loadSharePreferenceIsRunning()) {
             startTimer(loadSharePreferenceTime());
         } else {
@@ -52,22 +52,22 @@ public class TimerFragment extends Fragment {
 
     @OnClick(R.id.fragment_timer_reset_button)
     void onResetButtonClick() {
-        chronometer.setBase(SystemClock.elapsedRealtime());
-        stopTimer(0);
+        saveSharePreferences(0, false);
+        updateTimer();
     }
 
     @OnClick(R.id.fragment_timer_control_button)
     void onControlButtClick(){
         if (loadSharePreferenceIsRunning()) {
-            stopTimer(SystemClock.elapsedRealtime() - chronometer.getBase());
+            saveSharePreferences(SystemClock.elapsedRealtime() - chronometer.getBase(), false);
         } else {
-            startTimer(SystemClock.elapsedRealtime() - timeWhenStopped);
+            saveSharePreferences(SystemClock.elapsedRealtime() - timeWhenStopped, true);
         }
+        updateTimer();
     }
 
     private void startTimer(long beginTime) {
         button.setText(stop);
-        saveSharePreferences(beginTime, true);
         chronometer.setBase(beginTime);
         chronometer.start();
     }
@@ -75,7 +75,6 @@ public class TimerFragment extends Fragment {
     private void stopTimer(long timeWhenStopped) {
         this.timeWhenStopped = timeWhenStopped;
         button.setText(start);
-        saveSharePreferences(timeWhenStopped, false);
         chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
         chronometer.stop();
     }
@@ -85,11 +84,11 @@ public class TimerFragment extends Fragment {
     }
 
     private void saveSharePreferences(long time, boolean isRunning) {
-        getSharePreferences().edit().putLong(TIMER_FRAGMENT_PREF_SAVE_TIME, time).putBoolean(TIMER_FRAGMENT_PREF_IS_RUNNING, isRunning).commit();
+        getSharePreferences().edit().putLong(TIMER_FRAGMENT_PREF_TIME, time).putBoolean(TIMER_FRAGMENT_PREF_IS_RUNNING, isRunning).commit();
     }
 
     private long loadSharePreferenceTime() {
-        return getSharePreferences().getLong(TIMER_FRAGMENT_PREF_SAVE_TIME, 0);
+        return getSharePreferences().getLong(TIMER_FRAGMENT_PREF_TIME, 0);
     }
 
     private boolean loadSharePreferenceIsRunning() {
