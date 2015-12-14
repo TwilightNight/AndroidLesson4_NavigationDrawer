@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/menu_drawer_timer"
+            android:checked="true"
+            android:icon="@android:drawable/star_on"
+            android:title="Timer"/>
+        <item android:id="@+id/menu_drawer_other1"
+            android:icon="@android:drawable/star_off"
+            android:title="Other1"/>
+        <item android:id="@+id/menu_drawer_other2"
+            android:icon="@android:drawable/star_off"
+            android:title="Other2"/>
+    </group>
+</menu>
