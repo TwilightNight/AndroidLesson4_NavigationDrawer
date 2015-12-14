@@ -1,5 +1,6 @@
 package com.example.shana.androidlesson4_navigationdrawer;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -23,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     @Bind(R.id.activity_main_toolbar)
     Toolbar toolbar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,11 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void restoreSaveInstanceState(Bundle saveInstanceState) {
         if (saveInstanceState == null) {
-            selectedMenuItemPosition = 0;
+            updateLayoutWithSelectedItemPosition(0);
         } else {
-            selectedMenuItemPosition = saveInstanceState.getInt(MAIN_ACTIVITY_SELECTED_MENU_ITEM_POSITION);
+            updateLayoutWithSelectedItemPosition(saveInstanceState.getInt(MAIN_ACTIVITY_SELECTED_MENU_ITEM_POSITION));
         }
-        changeMenuItemState(navigationView.getMenu().getItem(selectedMenuItemPosition));
     }
 
     private void setupToolbar() {
@@ -54,23 +53,55 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem selectedItem) {
-                changeMenuItemState(selectedItem);
+                updateLayoutWithSelectedItemPosition(getSelectedMenuItemPosition(selectedItem));
                 drawerLayout.closeDrawers();
                 return true;
             }
         });
     }
 
-    private void changeMenuItemState(MenuItem selectedItem) {
+    private void updateLayoutWithSelectedItemPosition(int newSelectedItemPosition) {
+        changeMenuItemState(newSelectedItemPosition);
+        changeFragmentView(newSelectedItemPosition);
+    }
+
+    private int getSelectedMenuItemPosition(MenuItem selectedItem) {
         for (int position = 0; position < navigationView.getMenu().size(); position++) {
             MenuItem changeStateMenuItem = navigationView.getMenu().getItem(position);
-            if (changeStateMenuItem == selectedItem) {
-                selectedMenuItemPosition = position;
-                changeStateMenuItem.setIcon(android.R.drawable.star_on);
-            } else {
-                changeStateMenuItem.setIcon(android.R.drawable.star_off);
+            if (changeStateMenuItem == selectedItem){
+                return position;
             }
         }
+        return 0;
+    }
+
+    private void changeMenuItemState(int selectedMenuItemPosition) {
+        int oldSelectedMenuItemPosition = this.selectedMenuItemPosition;
+        this.selectedMenuItemPosition = selectedMenuItemPosition;
+        navigationView.getMenu().getItem(oldSelectedMenuItemPosition).setIcon(android.R.drawable.star_off);
+        navigationView.getMenu().getItem(selectedMenuItemPosition).setIcon(android.R.drawable.star_on);
+    }
+
+    private void changeFragmentView(int selectedMenuItemPosition) {
+        Fragment fragment;
+        Bundle bundle = new Bundle();
+        switch (selectedMenuItemPosition) {
+            case 0:
+                fragment = new TimerFragment();
+                break;
+            case 1:
+                fragment = new OtherFragment();
+                bundle.putString(OtherFragment.OTHER_FRAGMENT_COLOR, "#FF0000");
+                break;
+            case 2:
+                fragment = new OtherFragment();
+                bundle.putString(OtherFragment.OTHER_FRAGMENT_COLOR, "#00FF00");
+                break;
+            default:
+                throw new IllegalStateException("selectedMenuItemPosition too large");
+        }
+        fragment.setArguments(bundle);
+        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment_container, fragment, fragment.toString()).commit();
     }
 
     @Override
