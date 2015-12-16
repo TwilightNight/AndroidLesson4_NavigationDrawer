@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.Chronometer;
 
 import butterknife.Bind;
-import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -24,10 +23,6 @@ public class TimerFragment extends Fragment {
     private static final String TIMER_FRAGMENT_PREF_TIME = "TIMER_FRAGMENT_PREF_TIME";
     private static final String TIMER_FRAGMENT_PREF_IS_RUNNING = "TIMER_FRAGMENT_PREF_IS_RUNNING";
     private long timeWhenStopped = 0;
-    @BindString(R.string.start)
-    String start;
-    @BindString(R.string.stop)
-    String stop;
     @Bind(R.id.fragment_timer_chronometer)
     Chronometer chronometer;
     @Bind(R.id.fragment_timer_control_button)
@@ -67,14 +62,14 @@ public class TimerFragment extends Fragment {
     }
 
     private void startTimer(long beginTime) {
-        button.setText(stop);
+        button.setText(R.string.stop);
         chronometer.setBase(beginTime);
         chronometer.start();
     }
 
     private void stopTimer(long timeWhenStopped) {
         this.timeWhenStopped = timeWhenStopped;
-        button.setText(start);
+        button.setText(R.string.start);
         chronometer.setBase(SystemClock.elapsedRealtime() - timeWhenStopped);
         chronometer.stop();
     }
